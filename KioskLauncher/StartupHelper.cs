@@ -4,34 +4,32 @@ namespace KioskLauncher
 {
     internal static class StartupHelper
     {
-        private const string RunKeyPath =
-            @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
-
-        private const string ValueName = "KioskLauncherBrowser";
+        private const string ValueName  = "KioskLauncherBrowser";
+        private const string RunKeyPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
 
         /// <summary>
-        /// Adds a registry entry under HKCU\Run so the browser opens in kiosk
-        /// mode each time the current user logs in.
+        /// Adds a HKCU Run registry entry that launches the browser in kiosk mode
+        /// on every Windows login.
         /// </summary>
         public static void Enable(string browserPath, string url)
         {
-            // Standard command-line format for HKCU\Run:
-            //   "C:\path\to\browser.exe" --kiosk --no-first-run --new-window "url"
-            var command = $"\"{browserPath}\" --kiosk --no-first-run --new-window \"{url}\"";
-
             using (var key = Registry.CurrentUser.OpenSubKey(RunKeyPath, writable: true))
             {
-                key?.SetValue(ValueName, command);
+                key?.SetValue(
+                    ValueName,
+                    $"\"{browserPath}\" --kiosk --no-first-run --no-restore-last-session " +
+                    $"--disable-session-crashed-bubble --new-window \"{url}\"",
+                    RegistryValueKind.String);
             }
         }
 
-        /// <summary>Removes the kiosk browser auto-launch from HKCU\Run.</summary>
+        /// <summary>
+        /// Removes the kiosk browser Run entry.
+        /// </summary>
         public static void Disable()
         {
             using (var key = Registry.CurrentUser.OpenSubKey(RunKeyPath, writable: true))
-            {
                 key?.DeleteValue(ValueName, throwOnMissingValue: false);
-            }
         }
     }
 }

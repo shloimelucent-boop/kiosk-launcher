@@ -17,6 +17,11 @@ namespace KioskLauncher
         public string BrowserPath { get; set; } = string.Empty;
         public bool AutoLoginEnabled { get; set; }
         public string AutoLoginUser { get; set; } = string.Empty;
+        public bool AutoUpdatesEnabled    { get; set; }
+        public bool PowerSettingsEnabled  { get; set; }
+        public bool NotificationsDisabled { get; set; }
+        public bool StickyKeysDisabled    { get; set; }
+        public bool UsbStorageDisabled    { get; set; }
 
         public static Settings Load()
         {
@@ -37,8 +42,13 @@ namespace KioskLauncher
                     case "RestartEnabled":    s.RestartEnabled = val == "1"; break;
                     case "AutoLaunchEnabled": s.AutoLaunchEnabled = val == "1"; break;
                     case "BrowserPath":       s.BrowserPath = val; break;
-                    case "AutoLoginEnabled":  s.AutoLoginEnabled = val == "1"; break;
-                    case "AutoLoginUser":     s.AutoLoginUser = val; break;
+                    case "AutoLoginEnabled":    s.AutoLoginEnabled    = val == "1"; break;
+                    case "AutoLoginUser":       s.AutoLoginUser       = val; break;
+                    case "AutoUpdatesEnabled":    s.AutoUpdatesEnabled    = val == "1"; break;
+                    case "PowerSettingsEnabled":  s.PowerSettingsEnabled  = val == "1"; break;
+                    case "NotificationsDisabled": s.NotificationsDisabled = val == "1"; break;
+                    case "StickyKeysDisabled":    s.StickyKeysDisabled    = val == "1"; break;
+                    case "UsbStorageDisabled":    s.UsbStorageDisabled    = val == "1"; break;
                 }
             }
             return s;
@@ -54,7 +64,12 @@ namespace KioskLauncher
                 "AutoLaunchEnabled=" + (AutoLaunchEnabled ? "1" : "0") + "\n" +
                 "BrowserPath=" + BrowserPath + "\n" +
                 "AutoLoginEnabled=" + (AutoLoginEnabled ? "1" : "0") + "\n" +
-                "AutoLoginUser=" + AutoLoginUser + "\n"
+                "AutoLoginUser=" + AutoLoginUser + "\n" +
+                "AutoUpdatesEnabled=" + (AutoUpdatesEnabled ? "1" : "0") + "\n" +
+                "PowerSettingsEnabled=" + (PowerSettingsEnabled ? "1" : "0") + "\n" +
+                "NotificationsDisabled=" + (NotificationsDisabled ? "1" : "0") + "\n" +
+                "StickyKeysDisabled=" + (StickyKeysDisabled ? "1" : "0") + "\n" +
+                "UsbStorageDisabled=" + (UsbStorageDisabled ? "1" : "0") + "\n"
             );
         }
     }
