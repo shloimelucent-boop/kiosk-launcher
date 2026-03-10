@@ -55,6 +55,9 @@ Run the exe again — the Welcome screen will offer two options:
 - **Verify Settings** — checks whether all previously configured settings are currently active in Windows and shows a ✓ / ✗ / — report
 - **Start / Modify Setup** — re-runs the wizard with your previous settings pre-filled
 
+### Reverting to orginal settings
+Run the exe again and uncheck/remoove all options to set the PC back to its original state
+
 ---
 
 ## Exiting Kiosk Mode
