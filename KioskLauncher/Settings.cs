@@ -22,6 +22,7 @@ namespace KioskLauncher
         public bool NotificationsDisabled { get; set; }
         public bool StickyKeysDisabled    { get; set; }
         public bool UsbStorageDisabled    { get; set; }
+        public bool BootRecoveryEnabled   { get; set; }
 
         public static Settings Load()
         {
@@ -49,6 +50,7 @@ namespace KioskLauncher
                     case "NotificationsDisabled": s.NotificationsDisabled = val == "1"; break;
                     case "StickyKeysDisabled":    s.StickyKeysDisabled    = val == "1"; break;
                     case "UsbStorageDisabled":    s.UsbStorageDisabled    = val == "1"; break;
+                    case "BootRecoveryEnabled":   s.BootRecoveryEnabled   = val == "1"; break;
                 }
             }
             return s;
@@ -69,7 +71,8 @@ namespace KioskLauncher
                 "PowerSettingsEnabled=" + (PowerSettingsEnabled ? "1" : "0") + "\n" +
                 "NotificationsDisabled=" + (NotificationsDisabled ? "1" : "0") + "\n" +
                 "StickyKeysDisabled=" + (StickyKeysDisabled ? "1" : "0") + "\n" +
-                "UsbStorageDisabled=" + (UsbStorageDisabled ? "1" : "0") + "\n"
+                "UsbStorageDisabled=" + (UsbStorageDisabled ? "1" : "0") + "\n" +
+                "BootRecoveryEnabled=" + (BootRecoveryEnabled ? "1" : "0") + "\n"
             );
         }
     }

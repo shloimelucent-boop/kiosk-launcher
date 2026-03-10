@@ -46,11 +46,12 @@ namespace KioskLauncher
         private Label    lblBrowserDetected = null!;
 
         // ── Panel 5: System Configuration ───────────────────────────────────────
-        private CheckBox chkAutoUpdates  = null!;
+        private CheckBox chkAutoUpdates   = null!;
         private CheckBox chkPowerSettings = null!;
         private CheckBox chkNotifications = null!;
-        private CheckBox chkStickyKeys   = null!;
-        private CheckBox chkUsbStorage   = null!;
+        private CheckBox chkBootRecovery  = null!;
+        private CheckBox chkStickyKeys    = null!;
+        private CheckBox chkUsbStorage    = null!;
 
         // ── Panel 6: Startup Apps ────────────────────────────────────────────────
         private Panel        pnlStartupCheckboxes = null!;
@@ -434,7 +435,7 @@ namespace KioskLauncher
                 Font = new Font("Segoe UI", 8.5f, FontStyle.Italic),
                 ForeColor = Color.Gray
             };
-            y += 18;
+            y += 14;
 
             y = AddSysConfigItem(panel, ref y,
                 out chkAutoUpdates,
@@ -449,7 +450,12 @@ namespace KioskLauncher
             y = AddSysConfigItem(panel, ref y,
                 out chkNotifications,
                 "Disable notifications and error dialogs",
-                "Suppresses Windows notification popups and crash dialog boxes.");
+                "Suppresses notifications, crash dialogs, and Windows setup (OOBE) prompts.");
+
+            y = AddSysConfigItem(panel, ref y,
+                out chkBootRecovery,
+                "Auto-recover after crash (no error screen)",
+                "Reboots automatically after a BSOD instead of showing the recovery screen.");
 
             // Separator
             var sep = new Panel
@@ -457,7 +463,7 @@ namespace KioskLauncher
                 Left = 0, Top = y, Width = ContentWidth, Height = 1,
                 BackColor = Color.FromArgb(200, 200, 210)
             };
-            y += 8;
+            y += 6;
 
             // Optional section
             var lblOpt = new Label
@@ -467,7 +473,7 @@ namespace KioskLauncher
                 Font = new Font("Segoe UI", 8.5f, FontStyle.Italic),
                 ForeColor = Color.Gray
             };
-            y += 18;
+            y += 14;
 
             y = AddSysConfigItem(panel, ref y,
                 out chkStickyKeys,
@@ -493,13 +499,13 @@ namespace KioskLauncher
             };
             var lbl = new Label
             {
-                Left = 18, Top = y + 18, Width = ContentWidth - 18, Height = 16,
+                Left = 18, Top = y + 17, Width = ContentWidth - 18, Height = 14,
                 Text = subText,
                 ForeColor = Color.Gray,
                 Font = new Font("Segoe UI", 7.5f)
             };
             parent.Controls.AddRange(new Control[] { chk, lbl });
-            y += 42;
+            y += 34;
             return y;
         }
 
@@ -573,7 +579,7 @@ namespace KioskLauncher
             {
                 "Kiosk URL", "Nightly Restart", "Auto-Login",
                 "Browser Kiosk", "Auto Updates", "Power & Display",
-                "Notifications", "Sticky Keys", "USB Storage", "Startup Apps"
+                "Notifications", "Boot Recovery", "Sticky Keys", "USB Storage", "Startup Apps"
             };
 
             lblSummaryValues = new Label[rowNames.Length];
@@ -583,7 +589,7 @@ namespace KioskLauncher
             {
                 var nameLabel = new Label
                 {
-                    Left = 0, Top = y, Width = 110, Height = 23,
+                    Left = 0, Top = y, Width = 110, Height = 21,
                     Text = rowNames[i] + ":",
                     Font = new Font("Segoe UI", 8.5f, FontStyle.Bold),
                     ForeColor = Color.FromArgb(50, 50, 50)
@@ -591,12 +597,12 @@ namespace KioskLauncher
 
                 lblSummaryValues[i] = new Label
                 {
-                    Left = 115, Top = y, Width = ContentWidth - 115, Height = 23,
+                    Left = 115, Top = y, Width = ContentWidth - 115, Height = 21,
                     Font = new Font("Segoe UI", 8.5f)
                 };
 
                 panel.Controls.AddRange(new Control[] { nameLabel, lblSummaryValues[i] });
-                y += 23;
+                y += 21;
             }
 
             return panel;
@@ -625,13 +631,13 @@ namespace KioskLauncher
 
             pnlVerifyResults = new Panel
             {
-                Left = 0, Top = 48, Width = ContentWidth, Height = 190,
+                Left = 0, Top = 48, Width = ContentWidth, Height = 200,
                 BackColor = Color.Transparent
             };
 
             var btnVerifySetup = new Button
             {
-                Left = 0, Top = 245, Width = 190, Height = 29,
+                Left = 0, Top = 255, Width = 190, Height = 29,
                 Text = "Start / Modify Setup",
                 FlatStyle = FlatStyle.Flat,
                 BackColor = Color.FromArgb(60, 120, 190),
@@ -647,7 +653,7 @@ namespace KioskLauncher
 
             var btnVerifyExit = new Button
             {
-                Left = 200, Top = 245, Width = 90, Height = 29,
+                Left = 200, Top = 255, Width = 90, Height = 29,
                 Text = "Exit",
                 FlatStyle = FlatStyle.Flat,
                 BackColor = Color.FromArgb(220, 220, 225),
@@ -805,6 +811,7 @@ namespace KioskLauncher
             chkAutoUpdates.Checked   = s.AutoUpdatesEnabled;
             chkPowerSettings.Checked = s.PowerSettingsEnabled;
             chkNotifications.Checked = s.NotificationsDisabled;
+            chkBootRecovery.Checked  = s.BootRecoveryEnabled;
             chkStickyKeys.Checked    = s.StickyKeysDisabled;
             chkUsbStorage.Checked    = s.UsbStorageDisabled;
 
@@ -901,26 +908,34 @@ namespace KioskLauncher
                 chkNotifications.Checked,
                 chkNotifications.Checked,
                 chkNotifications.Checked
-                    ? "WILL BE APPLIED: Notifications and error dialogs disabled"
+                    ? "WILL BE APPLIED: Notifications, error dialogs, and OOBE prompts disabled"
                     : "No change will be made");
 
-            // Row 7 — Sticky Keys
+            // Row 7 — Boot Recovery
             SetSummaryRow(7,
+                chkBootRecovery.Checked,
+                chkBootRecovery.Checked,
+                chkBootRecovery.Checked
+                    ? "WILL BE APPLIED: Auto-reboot after BSOD, skip error screen"
+                    : "No change will be made");
+
+            // Row 8 — Sticky Keys
+            SetSummaryRow(8,
                 chkStickyKeys.Checked,
                 chkStickyKeys.Checked,
                 chkStickyKeys.Checked
                     ? "WILL BE APPLIED: Sticky/Toggle/Filter Keys popups disabled"
                     : "No change will be made");
 
-            // Row 8 — USB Storage
-            SetSummaryRow(8,
+            // Row 9 — USB Storage
+            SetSummaryRow(9,
                 chkUsbStorage.Checked,
                 chkUsbStorage.Checked,
                 chkUsbStorage.Checked
                     ? "WILL BE APPLIED: USB mass storage devices blocked"
                     : "No change will be made");
 
-            // Row 9 — Startup Apps
+            // Row 10 — Startup Apps
             // Build _startupToDisable from the currently-checked boxes in Panel 6.
             _startupToDisable.Clear();
             foreach (Control ctrl in pnlStartupCheckboxes.Controls)
@@ -929,11 +944,11 @@ namespace KioskLauncher
                     _startupToDisable.Add(name);
             }
             if (_startupToDisable.Count > 0)
-                SetSummaryRow(9, true, true,
+                SetSummaryRow(10, true, true,
                     $"WILL BE APPLIED: {_startupToDisable.Count} app(s) disabled " +
                     $"({string.Join(", ", _startupToDisable)})");
             else
-                SetSummaryRow(9, false, false, "No change will be made");
+                SetSummaryRow(10, false, false, "No change will be made");
         }
 
         private void SetSummaryRow(int i, bool enabled, bool ok, string text)
@@ -1041,6 +1056,7 @@ namespace KioskLauncher
                 AutoUpdatesEnabled    = chkAutoUpdates.Checked,
                 PowerSettingsEnabled  = chkPowerSettings.Checked,
                 NotificationsDisabled = chkNotifications.Checked,
+                BootRecoveryEnabled   = chkBootRecovery.Checked,
                 StickyKeysDisabled    = chkStickyKeys.Checked,
                 UsbStorageDisabled    = chkUsbStorage.Checked
             };
@@ -1122,6 +1138,16 @@ namespace KioskLauncher
                     NotificationHelper.Enable();
             }
             catch (Exception ex) { errors.AppendLine("Notifications: " + ex.Message); }
+
+            // ── Boot Recovery ─────────────────────────────────────────────────
+            try
+            {
+                if (chkBootRecovery.Checked)
+                    BootRecoveryHelper.Enable();
+                else
+                    BootRecoveryHelper.Disable();
+            }
+            catch (Exception ex) { errors.AppendLine("Boot recovery: " + ex.Message); }
 
             // ── Sticky Keys ───────────────────────────────────────────────────
             try

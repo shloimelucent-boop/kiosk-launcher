@@ -15,8 +15,9 @@ A Windows configuration tool that turns any PC into a dedicated kiosk display. W
 | **Windows Auto-Login** | Logs in automatically after each restart — no password prompt |
 | **Browser Kiosk Mode** | Launches Chrome or Edge in full-screen kiosk mode on every login |
 | **Windows Auto Updates** | Configures AU Group Policy to install updates daily at 3 AM |
-| **Display & Sleep** | Sets monitor and sleep timeouts to Never; disables screensaver |
-| **Notifications** | Suppresses Windows notification centre and crash/error dialogs |
+| **Display & Sleep** | Sets monitor and sleep timeouts to Never; activates High Performance power plan; disables USB Selective Suspend and screensaver |
+| **Notifications** | Suppresses Windows notification centre, crash/error dialogs, and the Windows setup (OOBE) prompts that can appear after recovery reboots |
+| **Boot Recovery** | Configures Windows to reboot automatically after a BSOD instead of stopping on the recovery/error screen (recommended) |
 | **Sticky Keys** | Disables the accessibility popup triggered by pressing Shift 5 times |
 | **USB Storage** | Blocks USB mass storage devices from mounting (optional) |
 | **Startup App Cleanup** | Scans for disruptive startup apps (OneDrive, Google Drive, Teams, etc.) and disables them non-destructively |
@@ -72,6 +73,8 @@ Press `Alt+F4` to close the kiosk browser window. The desktop will be accessible
 - Disruptive startup apps are disabled non-destructively — the registry entry is kept but flagged as disabled via `StartupApproved\Run`, the same mechanism Task Manager uses. They can be re-enabled at any time from Task Manager → Startup Apps.
 
 - USB storage blocking sets the `USBSTOR` service start type to Disabled (value 4). Re-running the wizard with that option unchecked restores it to Manual (value 3).
+
+- Boot recovery uses `bcdedit` to set `bootstatuspolicy ignoreallfailures` and `recoveryenabled no` on the current boot entry. This means Windows will not show the automatic repair / WinRE screen after a crash — the machine reboots silently. Re-running the wizard with that option unchecked restores the defaults (`DisplayAllFailures` / `recoveryenabled yes`).
 
 ---
 

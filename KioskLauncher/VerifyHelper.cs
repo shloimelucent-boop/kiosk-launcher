@@ -75,16 +75,14 @@ namespace KioskLauncher
                 failDetail: "AU policy not configured"
             ));
 
-            // Power Settings
-            results.Add(CheckRegistry(
+            // Power Settings — verify High Performance plan is active (SCHEME_MIN GUID)
+            results.Add(CheckCommandOutput(
                 "Power & Display Settings",
                 s.PowerSettingsEnabled,
-                Registry.CurrentUser,
-                @"Control Panel\Desktop",
-                "ScreenSaveActive",
-                expected: "0",
-                okDetail: "Screensaver disabled; display timeout configured",
-                failDetail: "Screensaver still active — power settings may not have applied"
+                "powercfg.exe", "/getactivescheme",
+                expectedSubstring: "8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c",
+                okDetail: "High Performance plan active; display/standby timeouts and USB suspend configured",
+                failDetail: "High Performance plan not active — power settings may not have applied"
             ));
 
             // Notifications
@@ -121,6 +119,16 @@ namespace KioskLauncher
                 expectedValue: 4,
                 okDetail: "USBSTOR service disabled",
                 failDetail: "USBSTOR service is not disabled"
+            ));
+
+            // Boot Recovery
+            results.Add(CheckCommandOutput(
+                "Boot Recovery",
+                s.BootRecoveryEnabled,
+                "bcdedit.exe", "/enum {current}",
+                expectedSubstring: "ignoreallfailures",
+                okDetail: "Auto-reboot after crash enabled",
+                failDetail: "Boot recovery policy not configured"
             ));
 
             return results;
@@ -223,6 +231,39 @@ namespace KioskLauncher
                         Name    = name,
                         Status  = ok ? VerifyStatus.Ok : VerifyStatus.Fail,
                         Details = ok ? okDetail : failDetail
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new VerifyResult { Name = name, Status = VerifyStatus.Fail, Details = ex.Message };
+            }
+        }
+
+        private static VerifyResult CheckCommandOutput(string name, bool enabled,
+            string exe, string args, string expectedSubstring, string okDetail, string failDetail)
+        {
+            if (!enabled)
+                return new VerifyResult { Name = name, Status = VerifyStatus.Skipped, Details = "Not configured" };
+            try
+            {
+                var psi = new ProcessStartInfo(exe, args)
+                {
+                    CreateNoWindow         = true,
+                    UseShellExecute        = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError  = true
+                };
+                using (var p = Process.Start(psi))
+                {
+                    var output = p?.StandardOutput.ReadToEnd() ?? string.Empty;
+                    p?.WaitForExit();
+                    bool found = output.IndexOf(expectedSubstring, StringComparison.OrdinalIgnoreCase) >= 0;
+                    return new VerifyResult
+                    {
+                        Name    = name,
+                        Status  = found ? VerifyStatus.Ok : VerifyStatus.Fail,
+                        Details = found ? okDetail : failDetail
                     };
                 }
             }
