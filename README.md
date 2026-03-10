@@ -56,7 +56,7 @@ Run the exe again — the Welcome screen will offer two options:
 - **Start / Modify Setup** — re-runs the wizard with your previous settings pre-filled
 
 ### Reverting to orginal settings
-Run the exe again and uncheck/remoove all options to set the PC back to its original state
+Run the exe again and uncheck/remove all options/configs to set the PC back to its original state
 
 ---
 
